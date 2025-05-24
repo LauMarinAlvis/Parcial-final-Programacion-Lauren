@@ -1,7 +1,7 @@
 #Sistema de Gestión de Rendimiento en Pruebas Deportivas
 
 import tkinter as tk 
-from tkinter import simpledialog, messagebox
+from tkinter import simpledialog, messagebox, ttk
 import random
 import math
 import pandas as pd 
@@ -54,12 +54,86 @@ def regis_participante():
         messagebox.showinfo("regis participante", f"participante {nombre} ingreso OK.\nPuntaje final: {puntaje_final}\nClasifica: {clasifica}")
 
     except ValueError as e:
-        messagebox.showerror("atencion", f"invalido: {str(e)}. Solo numeros entre 0 y 100.")
+        messagebox.showerror("atencion", f"invalido: {str(e)}. Solo numeros entre 0 y 100.") 
+
+
+
+def grafico_torta(datos, titulo): 
+    plt.figure(figsize=(6, 4))
+    plt.pie(datos.values(), labels=datos.keys(), autopct="%1.1f%%")
+    plt.title(titulo)   
+    temp_file = "temp_pie.png"
+    plt.savefig(temp_file) 
+    plt.close()    
+    return temp_file      
+
+
+
+def grafico_barras(datos, titulo):
+    plt.figure(figsize=(7, 5))
+    plt.bar(datos.keys(), datos.values())
+    plt.title(titulo)
+    plt.ylabel("cantidad")
+    plt.xticks(rotation=45)
+    
+    temp_file = "temp_plot.png" 
+    plt.savefig(temp_file)
+    plt.close()     
+    return temp_file     
+
 
 def report_general():
     if not participantes: 
-        messagebox.showinfo("Reporte", "No hay participantes registrados.") 
+        messagebox.showinfo("reporte", "sin participants registrados") 
         return
+
+    reporte_ventana = tk.Toplevel(ventana)
+    reporte_ventana.title("reporte general")
+    reporte_ventana.geometry("900x700")
+
+    #https://www.youtube.com/watch?v=kqbkUKIc1Gk 
+    notebook = ttk.Notebook(reporte_ventana) 
+    tab1 = ttk.Frame(notebook) 
+    notebook.add(tab1, text="Datos de participantes") 
+
+    
+    #https://www.youtube.com/watch?v=lqHcKT7ZwOo
+    tree = ttk.Treeview(tab1, columns=("nombre", "Puntaje final", "clasifica"), show="headings")
+    tree.heading("nombre", text="nombre")
+    tree.heading("Puntaje final", text="Puntaje final")
+    tree.heading("clasifica", text="clasifica")  
+
+    for nombre, datos in participantes.items():
+        tree.insert("", "end", values=(nombre, datos["puntaje_final"], datos["clasifica"]))    
+    tree.pack(expand=True, fill="both", padx=10, pady=10)
+    
+    tab2 = ttk.Frame(notebook)
+    notebook.add(tab2, text="estadistica")
+    
+    # Creando estadsticas promedio,clasificar los participants califican si o no
+    df = pd.DataFrame.from_dict (participantes, orient="index")
+    
+    stats_text = tk.Text(tab2, wrap="word")
+    scroll = ttk.Scrollbar(tab2, orient="vertical", command=stats_text.yview)
+    stats_text.configure(yscrollcommand=scroll.set)
+    
+    scroll.pack(side="right", fill="y")
+    stats_text.pack(expand=True, fill="both", padx=10, pady=10) 
+
+    stats_text.insert("end", "estadisticas import:\n\n")
+    stats_text.insert("end", df["puntaje_final"].describe().to_string()) 
+    
+    promedio = df["puntaje_final"].mean()
+    stats_text.insert("end", f"\n\nPuntaje promedio del grupo: {promedio:.2f}")
+    
+    clasificados = df["clasifica"].value_counts()
+    stats_text.insert("end", f"\n\nConteo de clasificacion:\n{clasificados.to_string()}")
+
+    #- Gráfico de torta con el total de clasificados y no clasificados
+    #- Matriz de correlación de los puntajes (si se usó pandas)
+
+
+
 
 
 def reporte_individual():
@@ -67,7 +141,44 @@ def reporte_individual():
     if not nombre: 
         return
 
-df = pd.DataFrame.from_dict (participantes, orient="index")   
+    datos = participantes.get(nombre)
+    if datos:
+        
+        reporte_ventana = tk.Toplevel(ventana)
+        reporte_ventana.title(f"repote individual - {nombre}")
+        reporte_ventana.geometry("900x700")
+    
+        notebook = ttk.Notebook(reporte_ventana)
+        tab1 = ttk.Frame(notebook)
+        notebook.add(tab1, text="info general")
+        
+        info_text = tk.Text(tab1, wrap="word", font=("Arial", 12))
+        scroll = ttk.Scrollbar(tab1, orient="vertical", command=info_text.yview) 
+        info_text.configure(yscrollcommand=scroll.set) 
+        
+        scroll.pack(side="right", fill="y") 
+        info_text.pack(expand=True, fill="both", padx=10, pady=10)           
+        info_text.insert("end", f"REPORTE INDIVIDUAL\n{'='*30}\n\n")
+        info_text.insert("end", f"Nombre: {nombre}\n")
+        info_text.insert("end", f"Puntaje final: {datos['puntaje_final']}\n")
+        info_text.insert("end", f"Clasificación: {'CLASIFICA' if datos['clasifica'] == 'Si' else 'NO CLASIFICA'}\n\n") 
+
+        pruebas = ["resistencia", "ruerza", "velocidad"]
+        info_text.insert("end", f"DETALLE POR PRUEBA\n{'='*30}\n")
+        
+        for i, prueba in enumerate(pruebas):
+            info_text.insert("end", f"\n{prueba.upper()}:\n")
+            info_text.insert("end", f"  Puntaje Bruto: {datos['puntajes'][i]}/100\n")
+            info_text.insert("end", f"  Dificultad: {datos['dificultades'][i]}\n")
+            info_text.insert("end", f"  Puntaje Ponderado: {round(datos['puntajes'][i] * datos['dificultades'][i], 2)}\n") 
+
+  #faltan puntajes - Puntaje promedio del grupoEstado
+  #- Resultados por prueba en un histograma con matplotlib
+  #- Nivel de dificultad aplicado en cada prueba en un histograma con matplotlib
+  #- Puntaje ponderado por prueba en un histograma con matplotlib
+
+
+
 
 
 
