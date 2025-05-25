@@ -7,6 +7,7 @@ import math
 import pandas as pd 
 import matplotlib.pyplot as plt
 import os
+from PIL import Image, ImageTk
 
 #1. Registrar participante
 #Los datos pueden almacenarse en listas o en un diccionario.
@@ -184,6 +185,40 @@ def report_general():
         label_bar.grid(row=0, column=1, padx=10, pady=10)
 
         os.remove(temp_file_bar)
+         
+        # grafico de m de correlacion :C
+        puntajes_df = pd.DataFrame([p["puntajes"] for p in participantes.values()] , columns=["resistencia", "fuerza", "velocidad"])
+        matriz_corr = puntajes_df.corr() 
+        #dandole forma m de correl 
+        plt.figure(figsize=(6, 5))
+        plt.title("Matriz de Correlación")
+        plt.imshow(matriz_corr, cmap="Purples", interpolation="nearest")
+        plt.colorbar(label="coeficiente")
+
+        etiquetas = matriz_corr.columns
+        plt.xticks(range(len(etiquetas)), etiquetas, rotation=59)
+        plt.yticks(range(len(etiquetas)), etiquetas) 
+        for i in range(len(etiquetas)):
+            for j in range(len(etiquetas)):
+                valor = matriz_corr.iloc[i, j]
+                plt.text(j, i, f"{valor:.2f}", ha="center", va="center", color="black")
+
+        plt.tight_layout()
+        temp_file_corr = "temp_correlacion.png"
+        plt.savefig(temp_file_corr)
+        plt.close()
+
+        img_corr = Image.open(temp_file_corr)
+        photo_corr = ImageTk.PhotoImage(img_corr)
+        label_corr = tk.Label(frame_graficos, image=photo_corr)
+        label_corr.image = photo_corr
+        label_corr.grid(row=1, column=1, padx=10, pady=10)
+
+        os.remove(temp_file_corr)
+
+    os.remove(temp_file_pie)
+    notebook.pack(expand=True, fill="both", padx=10, pady=10)
+
 
 
 
