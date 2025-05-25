@@ -5,7 +5,8 @@ from tkinter import simpledialog, messagebox, ttk
 import random
 import math
 import pandas as pd 
-import matplotlib
+import matplotlib.pyplot as plt
+import os
 
 #1. Registrar participante
 #Los datos pueden almacenarse en listas o en un diccionario.
@@ -48,27 +49,41 @@ def regis_participante():
             "puntajes": puntajes,
             "dificultades": dificultades,
             "puntaje_final": puntaje_final,
-            "clasifica": clasifica
-        }
+            "clasifica": clasifica}
 
+        #creando diciionario desde los datos q ingresan como participantes, y su posicion en la fila q se añade al csv histo. participantes
+        registro_csv = {"nombre": nombre,
+        "puntaje_resistencia": puntajes[0],
+        "dificultad_resistencia": dificultades[0],
+        "puntaje_fuerza": puntajes[1],
+        "dificultad_fuerza": dificultades[1],
+        "puntaje_velocidad": puntajes[2],
+        "dificultad_velocidad": dificultades[2],
+        "puntaje_final": puntaje_final,
+        "clasifica": clasifica }    
+
+        df_fila = pd.DataFrame([registro_csv])
+
+        archivo_csv = "historial_participantes.csv"
+        escribir_encabezado = not os.path.exists(archivo_csv)  
+
+        df_fila.to_csv(archivo_csv, mode='a', index=False, header=escribir_encabezado)
         messagebox.showinfo("regis participante", f"participante {nombre} ingreso OK.\nPuntaje final: {puntaje_final}\nClasifica: {clasifica}")
-
+        
     except ValueError as e:
         messagebox.showerror("atencion", f"invalido: {str(e)}. Solo numeros entre 0 y 100.") 
 
-
-
+        
 def grafico_torta(datos, titulo): 
     plt.figure(figsize=(6, 4))
     plt.pie(datos.values(), labels=datos.keys(), autopct="%1.1f%%")
     plt.title(titulo)   
     temp_file = "temp_pie.png"
-    plt.savefig(temp_file) 
+    plt.savefig(temp_file)      
     plt.close()    
-    return temp_file      
+    return temp_file   
 
-
-
+    
 def grafico_barras(datos, titulo):
     plt.figure(figsize=(7, 5))
     plt.bar(datos.keys(), datos.values())
@@ -128,9 +143,47 @@ def report_general():
     
     clasificados = df["clasifica"].value_counts()
     stats_text.insert("end", f"\n\nConteo de clasificacion:\n{clasificados.to_string()}")
+    #- Matriz de correlación de los puntajes (si se usó pandas)
+    # Bendita m de correlacion :C
+    if len(participantes) > 1:
+        puntajes_df = pd.DataFrame([p["puntajes"] for p in participantes.values()], columns=["resistencia", "fuerza", "velocidad"])
+        stats_text.insert("end", "\n\nmatriz correlacion:\n")
+        stats_text.insert("end", puntajes_df.corr().to_string())
+
+    # - Gráfico de torta con el total de clasificados y no clasificados
+    tab3 = ttk.Frame(notebook)
+    notebook.add(tab3, text="graficos")
+
+    frame_graficos = ttk.Frame(tab3)
+    frame_graficos.pack(expand=True, fill="both", padx=10, pady=10)
+
+    clasificados_dict = clasificados.to_dict()#clasificacion
+    temp_file_pie = grafico_torta(clasificados_dict, "clasificacion")
+
+    img_pie = Image.open(temp_file_pie)
+    photo_pie = ImageTk.PhotoImage(img_pie)
+    label_pie = tk.Label(frame_graficos, image=photo_pie)
+    label_pie.image = photo_pie
+    label_pie.grid(row=0, column=0, padx=10, pady=10)
 
     #- Gráfico de torta con el total de clasificados y no clasificados
-    #- Matriz de correlación de los puntajes (si se usó pandas)
+    # Gráfico de barras de puntajes promedio
+    if len(participantes) > 1:
+        puntajes_promedio = {
+            "Resistencia": sum(p["puntajes"][0] for p in participantes.values()) / len(participantes),
+            "Fuerza": sum(p["puntajes"][1] for p in participantes.values()) / len(participantes),
+            "Velocidad": sum(p["puntajes"][2] for p in participantes.values()) / len(participantes)
+        }
+
+        temp_file_bar = grafico_barras(puntajes_promedio, "promedio prueba")
+
+        img_bar = Image.open(temp_file_bar)
+        photo_bar = ImageTk.PhotoImage(img_bar)
+        label_bar = tk.Label(frame_graficos, image=photo_bar)
+        label_bar.image = photo_bar
+        label_bar.grid(row=0, column=1, padx=10, pady=10)
+
+        os.remove(temp_file_bar)
 
 
 
