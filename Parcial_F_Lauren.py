@@ -243,13 +243,13 @@ def reporte_individual():
         reporte_ventana = tk.Toplevel(ventana)
         reporte_ventana.title(f"repote individual - {nombre}")
         reporte_ventana.geometry("900x700")
-        reporte_ventana.configure(bg="#FCE4EC") 
+        reporte_ventana.configure(bg="#F8BBD0") 
     
         notebook = ttk.Notebook(reporte_ventana)
-        tab1 = ttk.Frame(notebook)
+        tab1 = tk.Frame(notebook, bg="#FCE4EC")
         notebook.add(tab1, text="info general")
         
-        info_text = tk.Text(tab1, wrap="word", font=("Arial", 12))
+        info_text = tk.Text(tab1, wrap="word", font=("Arial", 12), bg="#FCE4EC", fg="#333333")
         scroll = ttk.Scrollbar(tab1, orient="vertical", command=info_text.yview) 
         info_text.configure(yscrollcommand=scroll.set) 
         
@@ -280,8 +280,8 @@ def reporte_individual():
         frame_graficos.pack(expand=True, fill="both", padx=10, pady=10)
         
         # puntajes totales prueba
-        plt.figure(figsize=(6, 3))
-        plt.bar(pruebas, datos['puntajes'], color='blue', alpha=0.7)
+        plt.figure(figsize=(6, 3),  facecolor="#AD1457")
+        plt.bar(pruebas, datos['puntajes'], color='#F8BBD0', alpha=0.7)  # Barras PUNTAJES TOTALES X PRUEBA
         plt.title(f"puntajes totales x prueba - {nombre}")
         plt.ylabel("puntaje (0-100)")
         plt.ylim(0, 100)
@@ -297,8 +297,8 @@ def reporte_individual():
         label1.grid(row=0, column=0, padx=5, pady=5)
   #- Nivel de dificultad aplicado en cada prueba en un histograma con matplotlib
     #dificultad por pruebas
-        plt.figure(figsize=(6, 3))
-        plt.bar(pruebas, datos['dificultades'], color='orange', alpha=0.7)
+        plt.figure(figsize=(6, 3), facecolor="#FCE4EC")
+        plt.bar(pruebas, datos['dificultades'], color='#F48FB1', alpha=0.7)  # Barras NIELES DE DIFICULTAD X PRUEBA
         plt.title(f"niveles de dificultad x prueba - {nombre}")
         plt.ylabel("factor de dificltad")
         plt.ylim(1.0, 1.3)
@@ -316,8 +316,8 @@ def reporte_individual():
         
   #- Puntaje ponderado por prueba en un histograma con matplotlib
         calculos_poderados = [round(p * d, 2) for p, d in zip(datos['puntajes'], datos['dificultades'])]
-        plt.figure(figsize=(6, 3))
-        plt.bar(pruebas, calculos_poderados,  color='green', alpha=0.7)
+        plt.figure(figsize=(6, 3), facecolor="#F48FB1")
+        plt.bar(pruebas, calculos_poderados,  color='#AD1457', alpha=0.7)  # Barras PUNTAJES POND X PRUEBA
         plt.title(f"puntajes ponderados x prueba - {nombre}") 
         plt.ylabel("puntaje ponderado") 
         plt.ylim(0, 130)  # 100 * 1.3 = 130 
