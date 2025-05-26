@@ -1,5 +1,7 @@
 #Sistema de Gestión de Rendimiento en Pruebas Deportivas
 
+#https://github.com/LauMarinAlvis/Parcial-final-Programacion-Lauren.git
+
 import tkinter as tk 
 from tkinter import simpledialog, messagebox, ttk
 import random
