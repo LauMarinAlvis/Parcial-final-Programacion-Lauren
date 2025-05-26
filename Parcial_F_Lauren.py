@@ -341,7 +341,7 @@ def cargar_datos_csv ():
             participantes[fila["nombre"]] = {"puntajes":[fila["puntaje_resistencia"],fila["puntaje_fuerza"], fila["puntaje_velocidad"]
                 ],"dificultades":[fila["dificultad_resistencia"], fila["dificultad_fuerza"],fila["dificultad_velocidad"]],"puntaje_final": 
                 fila["puntaje_final"],"clasifica": fila["clasifica"]}
-cargar_datos_csv                  
+cargar_datos_csv()                 
 
 ventana = tk.Tk()
 ventana.title("Sistema de Rendimiento Pruebas Deportivas")
