@@ -74,11 +74,14 @@ def regis_participante():
     except ValueError as e:
         messagebox.showerror("atencion", f"invalido: {str(e)}. Solo numeros entre 0 y 100.") 
 
-        
+     #cambiar colores de graficos con lista https://www.youtube.com/watch?v=XEG4eh5l_qU    y https://www.youtube.com/watch?v=Vtn8w2sqMtA
 def grafico_torta(datos, titulo): 
-    plt.figure(figsize=(6, 4))
-    plt.pie(datos.values(), labels=datos.keys(), autopct="%1.1f%%")
-    plt.title(titulo)   
+    plt.figure(figsize=(4, 3), facecolor="#FCE4EC")  
+    ax = plt.gca()
+    ax.set_facecolor("#FCE4EC")
+    colores = ["#F8BBD0", "#F48FB1" ]
+    plt.pie(datos.values(), labels=datos.keys(), autopct="%1.1f%%",colors=colores,textprops={"color": "#AD1457"}) 
+    plt.title(titulo, color="#AD1457", fontsize=12)  
     temp_file = "temp_pie.png"
     plt.savefig(temp_file)      
     plt.close()    
@@ -86,11 +89,15 @@ def grafico_torta(datos, titulo):
 
     
 def grafico_barras(datos, titulo):
-    plt.figure(figsize=(7, 5))
-    plt.bar(datos.keys(), datos.values())
-    plt.title(titulo)
-    plt.ylabel("cantidad")
-    plt.xticks(rotation=45)
+    plt.figure(figsize=(4, 3),facecolor="#FCE4EC") 
+    ax = plt.gca()
+    ax.set_facecolor("#FCE4EC")
+    colores = ["#F8BBD0", "#F48FB1", "#F06292"]
+    plt.bar(datos.keys(), datos.values(),color ="#F48FB1", edgecolor= "#AD1457")
+    plt.title(titulo, color="#AD1457", fontsize=12) 
+    plt.ylabel("cantidad", color="#AD1457")
+    plt.xticks(rotation=10 ,color="#AD1457")
+    plt.yticks(color= "#AD1457")
     
     temp_file = "temp_plot.png" 
     plt.savefig(temp_file)
@@ -106,6 +113,7 @@ def report_general():
     reporte_ventana = tk.Toplevel(ventana)
     reporte_ventana.title("reporte general")
     reporte_ventana.geometry("900x700")
+    reporte_ventana.configure(bg="#FCE4EC")
 
     #https://www.youtube.com/watch?v=kqbkUKIc1Gk 
     notebook = ttk.Notebook(reporte_ventana) 
@@ -190,7 +198,7 @@ def report_general():
         puntajes_df = pd.DataFrame([p["puntajes"] for p in participantes.values()] , columns=["resistencia", "fuerza", "velocidad"])
         matriz_corr = puntajes_df.corr() 
         #dandole forma m de correl 
-        plt.figure(figsize=(6, 5))
+        plt.figure(figsize=(4, 4))
         plt.title("Matriz de Correlación")
         plt.imshow(matriz_corr, cmap="Purples", interpolation="nearest")
         plt.colorbar(label="coeficiente")
@@ -235,6 +243,7 @@ def reporte_individual():
         reporte_ventana = tk.Toplevel(ventana)
         reporte_ventana.title(f"repote individual - {nombre}")
         reporte_ventana.geometry("900x700")
+        reporte_ventana.configure(bg="#FCE4EC") 
     
         notebook = ttk.Notebook(reporte_ventana)
         tab1 = ttk.Frame(notebook)
@@ -271,7 +280,7 @@ def reporte_individual():
         frame_graficos.pack(expand=True, fill="both", padx=10, pady=10)
         
         # puntajes totales prueba
-        plt.figure(figsize=(8, 4))
+        plt.figure(figsize=(6, 3))
         plt.bar(pruebas, datos['puntajes'], color='blue', alpha=0.7)
         plt.title(f"puntajes totales x prueba - {nombre}")
         plt.ylabel("puntaje (0-100)")
@@ -288,7 +297,7 @@ def reporte_individual():
         label1.grid(row=0, column=0, padx=5, pady=5)
   #- Nivel de dificultad aplicado en cada prueba en un histograma con matplotlib
     #dificultad por pruebas
-        plt.figure(figsize=(8, 4))
+        plt.figure(figsize=(6, 3))
         plt.bar(pruebas, datos['dificultades'], color='orange', alpha=0.7)
         plt.title(f"niveles de dificultad x prueba - {nombre}")
         plt.ylabel("factor de dificltad")
@@ -307,7 +316,7 @@ def reporte_individual():
         
   #- Puntaje ponderado por prueba en un histograma con matplotlib
         calculos_poderados = [round(p * d, 2) for p, d in zip(datos['puntajes'], datos['dificultades'])]
-        plt.figure(figsize=(8, 4))
+        plt.figure(figsize=(6, 3))
         plt.bar(pruebas, calculos_poderados,  color='green', alpha=0.7)
         plt.title(f"puntajes ponderados x prueba - {nombre}") 
         plt.ylabel("puntaje ponderado") 
@@ -321,7 +330,7 @@ def reporte_individual():
         photo3 = ImageTk.PhotoImage(img3)
         label3 = tk.Label(frame_graficos, image=photo3) 
         label3.image = photo3
-        label3.grid(row=0,  column=1 , padx=5, pady=5) 
+        label3.grid(row=0,  column=1 , padx=5, pady=5,) 
 
         for temp_file in [temp_file1, temp_file2, temp_file3 ]:  
             try: 
@@ -344,13 +353,18 @@ def cargar_datos_csv ():
 cargar_datos_csv()                 
 
 ventana = tk.Tk()
+ventana.geometry("600x750")  
+ventana.configure(bg="#FCE4EC")
 ventana.title("Sistema de Rendimiento Pruebas Deportivas")
 
-tk.Label(ventana, text="Menu Principal", font=("Arial", 18)).pack(pady=10) 
-tk.Button(ventana, text="1. Registrar Participante", width=45, command=regis_participante).pack(pady=10)
-tk.Button(ventana, text="2. Reporte General", width=45, command=report_general).pack(pady=10) 
-tk.Button(ventana, text="3. Reporte Individual",  width=45, command=reporte_individual).pack(pady=10)
-tk.Button(ventana, text="4. salir", width=45, command=ventana.quit).pack(pady=15) 
+tk.Label(ventana, text="Sistema de Rendimiento Pruebas Deportivas", font=("Arial", 20, "bold"), bg="#FCE4EC", fg="#AD1457").pack(pady=10)
+tk.Button(ventana, text="1. Registrar Participante", width=45,bg="#F8BBD0", fg="#333333",relief="raised",  bd=3,activebackground="#F48FB1",activeforeground="#ffffff", command=regis_participante).pack(pady=10)
+tk.Button(ventana, text="2. Reporte General", width=45,bg="#F8BBD0", fg="#333333", relief="raised",  bd=3,activebackground="#F48FB1",activeforeground="#ffffff",command=report_general).pack(pady=10) 
+tk.Button(ventana, text="3. Reporte Individual",  width=45,bg="#F8BBD0", fg="#333333", relief="raised",  bd=3,activebackground="#F48FB1",activeforeground="#ffffff",command=reporte_individual).pack(pady=10)
+tk.Button(ventana, text="4. salir", width=45,bg="#F8BBD0", fg="#333333", relief="raised",  bd=3,activebackground="#F48FB1",activeforeground="#ffffff",command=ventana.quit).pack(pady=15) 
 
 
 ventana.mainloop()
+
+#https://www.youtube.com/watch?v=MpkTYMzhV0A
+#https://www.youtube.com/watch?v=y69rqjEfwYI
