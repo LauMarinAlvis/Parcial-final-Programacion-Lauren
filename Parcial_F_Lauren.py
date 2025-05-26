@@ -260,16 +260,88 @@ def reporte_individual():
             info_text.insert("end", f"  Dificultad: {datos['dificultades'][i]}\n")
             info_text.insert("end", f"  Puntaje Ponderado: {round(datos['puntajes'][i] * datos['dificultades'][i], 2)}\n") 
 
-  #faltan puntajes - Puntaje promedio del grupoEstado
+
+  #faltan puntajes - Puntaje promedio del grupoEstado graficar
   #- Resultados por prueba en un histograma con matplotlib
+        tab2 = ttk.Frame(notebook)
+        notebook.add(tab2, text="Graficos derendimiento")
+        
+    
+        frame_graficos = ttk.Frame(tab2)
+        frame_graficos.pack(expand=True, fill="both", padx=10, pady=10)
+        
+        # puntajes totales prueba
+        plt.figure(figsize=(8, 4))
+        plt.bar(pruebas, datos['puntajes'], color='blue', alpha=0.7)
+        plt.title(f"puntajes totales x prueba - {nombre}")
+        plt.ylabel("puntaje (0-100)")
+        plt.ylim(0, 100)
+        
+        temp_file1 = "temp_puntajes.png"
+        plt.savefig(temp_file1)
+        plt.close()
+        
+        img1 = Image.open(temp_file1)
+        photo1 = ImageTk.PhotoImage(img1)
+        label1 = tk.Label(frame_graficos, image=photo1)
+        label1.image = photo1
+        label1.grid(row=0, column=0, padx=5, pady=5)
   #- Nivel de dificultad aplicado en cada prueba en un histograma con matplotlib
+    #dificultad por pruebas
+        plt.figure(figsize=(8, 4))
+        plt.bar(pruebas, datos['dificultades'], color='orange', alpha=0.7)
+        plt.title(f"niveles de dificultad x prueba - {nombre}")
+        plt.ylabel("factor de dificltad")
+        plt.ylim(1.0, 1.3)
+        
+        temp_file2 = "temp_dificultad.png"
+        plt.savefig(temp_file2)
+        plt.close()
+        
+        img2 = Image.open(temp_file2)
+        photo2 = ImageTk.PhotoImage(img2)
+        label2 = tk.Label(frame_graficos,  image=photo2) 
+        label2.image =  photo2
+        label2.grid(row=1, column=0, padx=5, pady=5) 
+
+        
   #- Puntaje ponderado por prueba en un histograma con matplotlib
+        calculos_poderados = [round(p * d, 2) for p, d in zip(datos['puntajes'], datos['dificultades'])]
+        plt.figure(figsize=(8, 4))
+        plt.bar(pruebas, calculos_poderados,  color='green', alpha=0.7)
+        plt.title(f"puntajes ponderados x prueba - {nombre}") 
+        plt.ylabel("puntaje ponderado") 
+        plt.ylim(0, 130)  # 100 * 1.3 = 130 
+        
+        temp_file3 = "temp_ponderados.png"
+        plt.savefig(temp_file3)
+        plt.close()
+        
+        img3 = Image.open(temp_file3)
+        photo3 = ImageTk.PhotoImage(img3)
+        label3 = tk.Label(frame_graficos, image=photo3) 
+        label3.image = photo3
+        label3.grid(row=0,  column=1 , padx=5, pady=5) 
 
-
-
-
-
-
+        for temp_file in [temp_file1, temp_file2, temp_file3 ]:  
+            try: 
+                os.remove(temp_file)
+            except:
+                pass
+        
+        notebook.pack(expand=True, fill="both", padx=10, pady=10)
+    else:
+        messagebox.showinfo("NO SE ENCUENTRA", "participant sin registro ") 
+        #crracion de funcion para me de el reporte acumulado con todo el historial de datos del csv
+def cargar_datos_csv ():
+    archivo_csv = "historial_participantes.csv"
+    if os.path.exists(archivo_csv):
+        df = pd.read_csv(archivo_csv)
+        for _, fila in df.iterrows():
+            participantes[fila["nombre"]] = {"puntajes":[fila["puntaje_resistencia"],fila["puntaje_fuerza"], fila["puntaje_velocidad"]
+                ],"dificultades":[fila["dificultad_resistencia"], fila["dificultad_fuerza"],fila["dificultad_velocidad"]],"puntaje_final": 
+                fila["puntaje_final"],"clasifica": fila["clasifica"]}
+cargar_datos_csv                  
 
 ventana = tk.Tk()
 ventana.title("Sistema de Rendimiento Pruebas Deportivas")
